@@ -14,10 +14,10 @@
 
 | Материал | Содержание |
 | --- | --- |
-| [Product case](docs/product-case.md) | ЦА, Job Story, ценностное предложение, MVP, roadmap и метрики |
-| [Unit economics](docs/unit-economics.md) | Логика модели, допущения и результаты трёх сценариев |
+| [Product case](product-case.md) | ЦА, Job Story, ценностное предложение, MVP, roadmap и метрики |
+| [Unit economics](unit-economics.md) | Логика модели, допущения и результаты трёх сценариев |
 | [`omnis_unit_economics_model.xlsx`](omnis_unit_economics_model.xlsx) | Редактируемая финансовая модель |
-| [`assets/omnis_diploma_deck.pptx`](assets/omnis_diploma_deck.pptx) | Исходная презентация дипломной работы |
+| [`omnis_diploma_deck.pptx`](omnis_diploma_deck.pptx) | Исходная презентация дипломной работы |
 
 ## Ключевые результаты базового сценария
 
