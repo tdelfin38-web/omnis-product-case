@@ -74,6 +74,7 @@ Omnis — концепция категории «Аптека» в онлайн
 | [Конкуренты](docs/COMPETITOR_ANALYSIS.md) | Альтернативы и дифференциация |
 | [Риски](docs/RISKS.md) | Регуляторные, операционные и продуктовые риски |
 | [Юнит-экономика](docs/unit-economics.md) | Логика модели и допущения |
+| [Интерактивный гид кейса](https://tdelfin38-web.github.io/omnis-product-case/) | Путь от исследования до MVP, метрик и roadmap; учебный кейс отделён от синтетической A/B-симуляции |
 | [`omnis_unit_economics_model.xlsx`](omnis_unit_economics_model.xlsx) | Редактируемая финансовая модель |
 | [`omnis_diploma_deck.pptx`](omnis_diploma_deck.pptx) | Презентация дипломной работы |
 

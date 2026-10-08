@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Интерактивный разбор учебного продуктового кейса Omnis: исследование, MVP, метрики и экономика.">
+  <title>Omnis — учебный продуктовый кейс</title>
+  <style>
+    :root {
+      --ink: #17243a;
+      --muted: #65738a;
+      --paper: #ffffff;
+      --canvas: #f4f7fb;
+      --line: #dce4ef;
+      --primary: #3158d4;
+      --violet: #7548bd;
+      --mint: #0d8b6b;
+      --amber: #b86b06;
+      --soft-blue: #edf2ff;
+      --soft-mint: #eaf8f3;
+      --soft-amber: #fff5e4;
+      --soft-violet: #f3efff;
+      --shadow: 0 16px 42px rgba(28, 47, 78, .09);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    a { color: inherit; }
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px;
+      border: 1px solid rgba(255,255,255,.28); border-radius: 999px; font-size: 13px; font-weight: 750;
+      background: rgba(255,255,255,.12); color: #fff;
+    }
+    .eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #9debd6; }
+    .hero {
+      overflow: hidden; color: white; background: linear-gradient(125deg, #182d68 0%, #3158d4 48%, #7649c2 100%);
+      padding: 54px 0 44px; position: relative;
+    }
+    .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; opacity: .18; pointer-events: none; }
+    .hero::before { width: 480px; height: 480px; right: -120px; top: -250px; background: #c3b4ff; }
+    .hero::after { width: 340px; height: 340px; left: -150px; bottom: -230px; background: #7de0cf; }
+    .hero-grid { position: relative; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr); gap: 34px; align-items: end; }
+    h1 { margin: 15px 0 15px; font-size: clamp(38px, 6vw, 68px); letter-spacing: -.052em; line-height: .98; max-width: 780px; }
+    .lead { margin: 0; max-width: 700px; font-size: 18px; color: rgba(255,255,255,.86); }
+    .case-note { background: rgba(7,17,55,.28); border: 1px solid rgba(255,255,255,.18); border-radius: 18px; padding: 20px; backdrop-filter: blur(8px); }
+    .case-note strong { display: block; font-size: 14px; margin-bottom: 6px; }
+    .case-note p { margin: 0; color: rgba(255,255,255,.84); font-size: 14px; }
+    .nav-wrap { position: sticky; z-index: 5; top: 0; background: rgba(244,247,251,.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+    .nav { display: flex; overflow-x: auto; gap: 6px; padding: 11px 0; scrollbar-width: none; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav a { flex: 0 0 auto; padding: 7px 11px; border-radius: 999px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 700; }
+    .nav a:hover, .nav a.active { color: var(--primary); background: var(--soft-blue); }
+    main { padding: 38px 0 72px; }
+    .intro { display: grid; grid-template-columns: 1.1fr .9fr; gap: 22px; margin-bottom: 28px; }
+    .panel, .stage, .metric-card { background: var(--paper); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); }
+    .panel { padding: 25px; }
+    h2 { margin: 0 0 12px; font-size: 27px; letter-spacing: -.035em; line-height: 1.12; }
+    h3 { margin: 0 0 8px; font-size: 17px; letter-spacing: -.02em; }
+    p { margin: 0 0 12px; }
+    .muted { color: var(--muted); }
+    .label { color: var(--primary); text-transform: uppercase; font-size: 11px; letter-spacing: .09em; font-weight: 850; }
+    .callout { border-left: 4px solid var(--primary); background: var(--soft-blue); border-radius: 0 12px 12px 0; padding: 13px 15px; font-size: 14px; }
+    .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .stat { padding: 16px; border-radius: 15px; background: #f7f9fd; border: 1px solid #eaf0f7; }
+    .stat b { display: block; color: var(--primary); font-size: 27px; line-height: 1.05; letter-spacing: -.04em; }
+    .stat span { display: block; margin-top: 5px; color: var(--muted); font-size: 13px; line-height: 1.28; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin: 54px 0 17px; }
+    .section-head p { max-width: 560px; margin: 0; color: var(--muted); }
+    .filters { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+    .filter { border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); font: inherit; font-size: 13px; font-weight: 750; padding: 8px 12px; cursor: pointer; }
+    .filter[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .journey { display: grid; gap: 14px; }
+    .stage { padding: 23px; display: grid; grid-template-columns: 84px 1fr minmax(245px, .8fr); gap: 22px; transition: opacity .2s ease, transform .2s ease; scroll-margin-top: 74px; }
+    .stage.hidden { display: none; }
+    .stage:hover { transform: translateY(-2px); }
+    .stage-no { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 17px; background: var(--soft-blue); color: var(--primary); font-size: 20px; font-weight: 850; }
+    .stage.market .stage-no { background: var(--soft-amber); color: var(--amber); }
+    .stage.research .stage-no { background: var(--soft-mint); color: var(--mint); }
+    .stage.product .stage-no { background: var(--soft-violet); color: var(--violet); }
+    .stage p:last-child { margin-bottom: 0; }
+    .evidence { align-self: center; padding: 15px; border-radius: 14px; background: #f8faff; }
+    .evidence b { display: block; font-size: 14px; margin-bottom: 6px; }
+    .evidence p { font-size: 13px; color: var(--muted); }
+    .tag { display: inline-block; margin: 0 5px 6px 0; padding: 4px 8px; border-radius: 99px; color: var(--primary); background: var(--soft-blue); font-size: 12px; font-weight: 700; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .metric-card { padding: 18px; }
+    .metric-card b { display: block; color: var(--primary); font-size: 22px; letter-spacing: -.03em; }
+    .metric-card span { display: block; margin-top: 6px; color: var(--muted); font-size: 13px; }
+    .roadmap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: #fff; box-shadow: var(--shadow); }
+    .roadmap-item { padding: 20px; border-right: 1px solid var(--line); }
+    .roadmap-item:last-child { border-right: 0; }
+    .roadmap-item span { color: var(--violet); font-size: 12px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    .roadmap-item h3 { margin-top: 8px; }
+    .roadmap-item p { color: var(--muted); font-size: 14px; }
+    .boundary { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 28px; }
+    .boundary article { padding: 21px; border: 1px solid var(--line); border-radius: 18px; }
+    .boundary article:first-child { background: var(--soft-mint); border-color: #c8eadf; }
+    .boundary article:last-child { background: var(--soft-amber); border-color: #f3dfb8; }
+    .boundary a { color: var(--primary); font-weight: 750; }
+    details { border-top: 1px solid var(--line); margin-top: 30px; padding-top: 18px; }
+    summary { cursor: pointer; color: var(--primary); font-weight: 800; }
+    .sources { margin-top: 13px; padding-left: 18px; color: var(--muted); font-size: 14px; }
+    .footer { padding: 25px 0 45px; color: var(--muted); font-size: 13px; }
+    .footer a { color: var(--primary); font-weight: 750; }
+    @media (max-width: 820px) {
+      .hero { padding: 38px 0 34px; }
+      .hero-grid, .intro, .boundary { grid-template-columns: 1fr; }
+      .stage { grid-template-columns: 60px 1fr; }
+      .evidence { grid-column: 1 / -1; }
+      .metrics-grid, .roadmap { grid-template-columns: repeat(2, 1fr); }
+      .roadmap-item:nth-child(2) { border-right: 0; }
+      .roadmap-item:nth-child(n+3) { border-top: 1px solid var(--line); }
+    }
+    @media (max-width: 500px) {
+      .shell { width: min(100% - 24px, 1180px); }
+      h2 { font-size: 24px; }
+      .stats, .metrics-grid, .roadmap { grid-template-columns: 1fr; }
+      .stage { padding: 18px; grid-template-columns: 1fr; gap: 13px; }
+      .roadmap-item { border-right: 0; border-top: 1px solid var(--line); }
+      .roadmap-item:first-child { border-top: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero" id="top">
+    <div class="shell hero-grid">
+      <div>
+        <span class="eyebrow">Учебный продуктовый кейс</span>
+        <h1>Omnis: доставка рецептурных препаратов</h1>
+        <p class="lead">Интерактивная версия дипломной работы Яндекс Практикума: путь от исследования рынка и пользователей до MVP, метрик и сценарной экономики.</p>
+      </div>
+      <aside class="case-note">
+        <strong>Как читать этот кейс</strong>
+        <p>Это учебный проект на материалах проектных работ по спринтам. Цифры рынка и экономики — сценарные расчёты, а не показатели действующего бизнеса.</p>
+      </aside>
+    </div>
+  </header>
+
+  <div class="nav-wrap">
+    <nav class="shell nav" aria-label="Навигация по кейсу">
+      <a class="active" href="#overview">Обзор</a>
+      <a href="#journey">Этапы кейса</a>
+      <a href="#metrics">Метрики</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#boundary">Границы кейса</a>
+      <a href="#sources">Источники</a>
+    </nav>
+  </div>
+
+  <main class="shell">
+    <section class="intro" id="overview">
+      <article class="panel">
+        <div class="label">Задача</div>
+        <h2>Собрать концепцию сервиса в категории «Аптека»</h2>
+        <p class="muted">Пользователю нужно проверить наличие рецептурного препарата, пройти проверку рецепта, оформить заказ и отследить доставку без лишних звонков, поездок и неопределённости.</p>
+        <div class="callout">Ключевой продуктовый вопрос: можно ли собрать понятный и безопасный сценарий заказа в ограниченном пилотном контуре, прежде чем масштабировать решение.</div>
+      </article>
+      <aside class="panel">
+        <div class="label">Основание решений</div>
+        <div class="stats">
+          <div class="stat"><b>3+</b><span>глубинных интервью</span></div>
+          <div class="stat"><b>30</b><span>ответов в доступной локальной выгрузке опроса</span></div>
+          <div class="stat"><b>83%</b><span>считают приемлемой доставку за 1–2 дня</span></div>
+          <div class="stat"><b>93%</b><span>хотели бы видеть информацию о несовместимости препаратов</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <div class="section-head" id="journey">
+      <div><div class="label">Логика работы</div><h2>От исследования к запуску</h2></div>
+      <p>Выберите направление, чтобы оставить на экране только нужные этапы. Каждая карточка привязана к проектной работе соответствующего спринта.</p>
+    </div>
+
+    <div class="filters" aria-label="Фильтр этапов">
+      <button class="filter" type="button" data-filter="all" aria-pressed="true">Все этапы</button>
+      <button class="filter" type="button" data-filter="market" aria-pressed="false">Рынок</button>
+      <button class="filter" type="button" data-filter="research" aria-pressed="false">Пользователь</button>
+      <button class="filter" type="button" data-filter="product" aria-pressed="false">Продукт и экономика</button>
+    </div>
+
+    <section class="journey">
+      <article class="stage market" data-stage="market">
+        <div class="stage-no">01</div>
+        <div>
+          <div class="label">Спринты 3–4 · рынок</div>
+          <h3>Конкуренты, аудитория и потенциал</h3>
+          <p>Провёл SWOT-анализ ключевых конкурентов, собрал персону и оценил рынок через TAM, SAM и SOM. Для Москвы в учебной модели: TAM — 8,1 млн человек / 80 млрд ₽, SAM — 1,7 млн / 16,8 млрд ₽, SOM — 0,9 млн / 8,4 млрд ₽.</p>
+          <span class="tag">SWOT</span><span class="tag">Persona</span><span class="tag">TAM / SAM / SOM</span>
+        </div>
+        <aside class="evidence"><b>Вывод</b><p>Сценарий доставки Rx-препаратов выглядит перспективным, но зависит от регуляторного контура, ассортимента и операционной надёжности.</p></aside>
+      </article>
+
+      <article class="stage research" data-stage="research">
+        <div class="stage-no">02</div>
+        <div>
+          <div class="label">Спринты 5–7 · discovery</div>
+          <h3>Проблема и пользовательский путь</h3>
+          <p>Провёл глубинные интервью, опрос и собрал CJM. Пользователи ценят экономию времени и доставку, но сталкиваются с отсутствием нужного препарата, разрозненностью предложений, ожиданием и тревогой за медицинские данные.</p>
+          <span class="tag">Глубинные интервью</span><span class="tag">Опрос</span><span class="tag">CJM</span><span class="tag">JTBD</span>
+        </div>
+        <aside class="evidence"><b>Job Story</b><p>Когда мне регулярно нужны рецептурные препараты, я хочу в одном сервисе проверить наличие, загрузить рецепт и оформить доставку, чтобы не тратить время на поездки и поиск.</p></aside>
+      </article>
+
+      <article class="stage product" data-stage="product">
+        <div class="stage-no">03</div>
+        <div>
+          <div class="label">Спринты 8–9 · аналитика</div>
+          <h3>Метрики и проверяемая логика MVP</h3>
+          <p>Разложил продуктовую воронку от поиска лекарства до повторного заказа. Отдельно выделил показатели проверки рецепта, выполнения доставки, удержания и экономики, чтобы решение можно было проверять по этапам.</p>
+          <span class="tag">Воронка</span><span class="tag">North Star</span><span class="tag">Retention</span><span class="tag">ROI</span>
+        </div>
+        <aside class="evidence"><b>Фокус</b><p>Не просто «запустить доставку», а увидеть, на каком шаге пользователь теряет уверенность: наличие, рецепт, оформление или доставка.</p></aside>
+      </article>
+
+      <article class="stage product" data-stage="product">
+        <div class="stage-no">04</div>
+        <div>
+          <div class="label">Спринт 10 · бизнес-модель</div>
+          <h3>Сценарная юнит-экономика</h3>
+          <p>Собрал учебную модель с комиссией аптек, доходом от доставки, переменными и фиксированными затратами. В базовом сценарии на 2026 год — 1,43 млн заказов, 3,00 млрд ₽ GMV и 16,0% EBITDA margin.</p>
+          <span class="tag">GMV</span><span class="tag">ARPU</span><span class="tag">LTV</span><span class="tag">EBITDA</span>
+        </div>
+        <aside class="evidence"><b>Важно</b><p>Это сценарный расчёт учебного кейса: он нужен для проверки допущений, а не для утверждения финансового плана реального бизнеса.</p></aside>
+      </article>
+
+      <article class="stage product" data-stage="product">
+        <div class="stage-no">05</div>
+        <div>
+          <div class="label">Спринты 11–12 · delivery</div>
+          <h3>MVP, риски и развитие</h3>
+          <p>Собрал состав MVP: поиск и карточка препарата, наличие в подключённых аптеках, загрузка и статус рецепта, оформление, отслеживание доставки и уведомления. Для следующей версии — повторные заказы, персональные напоминания, обработка исключений и расширение географии.</p>
+          <span class="tag">MVP</span><span class="tag">PRD</span><span class="tag">Риски</span><span class="tag">Roadmap</span>
+        </div>
+        <aside class="evidence"><b>Принцип запуска</b><p>Начать с ограниченного легального пилота и не масштабировать сервис, пока не подтверждены пользовательские, операционные и экономические метрики.</p></aside>
+      </article>
+    </section>
+
+    <section id="metrics">
+      <div class="section-head"><div><div class="label">Контроль эффекта</div><h2>Что измерять после запуска</h2></div><p>Метрики составляют связку от пользовательского сценария к экономике — это не зафиксированные результаты запуска.</p></div>
+      <div class="metrics-grid">
+        <article class="metric-card"><b>Конверсия</b><span>поиск препарата → оформление заказа</span></article>
+        <article class="metric-card"><b>Проверка рецепта</b><span>доля успешных проверок и медианное время</span></article>
+        <article class="metric-card"><b>Delivery SLA</b><span>заказы без инцидентов и переносов</span></article>
+        <article class="metric-card"><b>Повторный заказ</b><span>удержание для регулярных препаратов</span></article>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <div class="section-head"><div><div class="label">Порядок развития</div><h2>Roadmap</h2></div><p>Последовательность позволяет проверять спрос и операционную возможность до масштабирования.</p></div>
+      <div class="roadmap">
+        <article class="roadmap-item"><span>01 · discovery</span><h3>Проблема и прототип</h3><p>Интервью, опросы и тестирование ключевого пути.</p></article>
+        <article class="roadmap-item"><span>02 · MVP</span><h3>Пилотный контур</h3><p>Каталог, рецепт, заказ и доставка в ограниченной географии.</p></article>
+        <article class="roadmap-item"><span>03 · MLP</span><h3>Повторные сценарии</h3><p>Напоминания, обработка исключений и операционная надёжность.</p></article>
+        <article class="roadmap-item"><span>04 · scale</span><h3>Масштабирование</h3><p>Новые города, сегменты и функции при подтверждённых метриках.</p></article>
+      </div>
+    </section>
+
+    <section class="boundary" id="boundary">
+      <article>
+        <div class="label">Этот репозиторий</div>
+        <h3>Учебный продуктовый кейс Omnis</h3>
+        <p>Здесь собраны исследование, решение, MVP, метрики, риски, roadmap и сценарная экономика. Все материалы описывают учебную работу Яндекс Практикума.</p>
+      </article>
+      <article>
+        <div class="label">Отдельный проект</div>
+        <h3>Синтетическая A/B-симуляция</h3>
+        <p>Статистический расчёт по гипотезе о статусе проверки рецепта находится в отдельном pet-project и использует синтетические события. <a href="https://github.com/tdelfin38-web/omnis-ab-test-simulation">Открыть A/B-симуляцию →</a></p>
+      </article>
+    </section>
+
+    <section class="panel" id="sources" style="margin-top:28px">
+      <div class="label">Первичные источники</div>
+      <h2>Проектные работы по спринтам</h2>
+      <p class="muted">Страница собрана по сохранённым учебным материалам и проектным работам, а не по синтетической A/B-симуляции.</p>
+      <details>
+        <summary>Показать карту источников</summary>
+        <ul class="sources">
+          <li>Спринты 3–4: анализ конкурентов, персона, TAM/SAM/SOM и анализ трендов.</li>
+          <li>Спринты 5–7: глубинные интервью, опрос, JTBD и CJM.</li>
+          <li>Спринты 8–9: продуктовая аналитика, дерево метрик и показатели бизнеса.</li>
+          <li>Спринты 10–12: бизнес-модель, юнит-экономика, эксперименты, MVP и roadmap.</li>
+          <li>Дипломная сборка: сведение артефактов в единый сценарий запуска категории «Аптека».</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+
+  <footer class="shell footer">
+    <a href="../README.md">← README репозитория</a> · Учебный продуктовый кейс · <a href="#top">Наверх ↑</a>
+  </footer>
+
+  <script>
+    const buttons = document.querySelectorAll('.filter');
+    const stages = document.querySelectorAll('.stage');
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        buttons.forEach((item) => item.setAttribute('aria-pressed', item === button ? 'true' : 'false'));
+        stages.forEach((stage) => stage.classList.toggle('hidden', filter !== 'all' && stage.dataset.stage !== filter));
+      });
+    });
+    const links = [...document.querySelectorAll('.nav a')];
+    const sections = links.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      links.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === '#' + visible.target.id));
+    }, { rootMargin: '-20% 0px -68% 0px', threshold: [.05, .25] });
+    sections.forEach((section) => observer.observe(section));
+  </script>
+</body>
+</html>
